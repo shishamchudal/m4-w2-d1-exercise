@@ -56,6 +56,10 @@ app.use(
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: false, // set to true only if using HTTPS
+      maxAge: 60000, // 60 seconds in milliseconds
+    },
   })
 );
 
@@ -81,8 +85,18 @@ app.post(
     failureRedirect: "/login",
   })
 );
-app.get("/logout", function (req, res) {
-  req.logout();
-  res.redirect("/");
+app.get("/logout", function (req, res, next) {
+  // req.logout();
+  // res.redirect("/");
+
+  req.session.destroy(err => {
+    if (err) {
+      next(err)
+    } else {
+      res.clearCookie('connect.sid')
+      res.redirect('/')
+    }
+  });
 });
+
 app.listen(3000);
